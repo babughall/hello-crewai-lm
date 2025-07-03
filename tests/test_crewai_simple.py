@@ -6,6 +6,7 @@ This test verifies that:
 1. CrewAI can be properly imported and initialized
 2. CrewAI can connect to LM Studio using the configured model
 3. A simple agent and task can be executed successfully
+4. Direct LLM calls work properly
 
 Usage:
     python test_crewai_simple.py
@@ -13,94 +14,94 @@ Usage:
 The test uses the model configured in .env.toml under [settings.default_model].
 Ensure LM Studio is running with the configured model loaded before running this test.
 """
-
-import os
 import sys
+import os
+from pathlib import Path
 
-# Add src directory to path to import config_loader
+# Add src directory to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src', 'hello_crewai'))
 
-try:
-    from config_loader import get_model_config, get_current_model
-except ImportError:
-    print("* ERROR: Could not import config_loader. Make sure config_loader.py exists in src/hello_crewai/")
-    sys.exit(1)
+from config_loader import get_model_config
+from crewai import Agent, Task, Crew
+from crewai.llm import LLM
+import traceback
 
-# Load configuration and set environment variables
-try:
-    current_model_name = get_current_model()
-    config = get_model_config(current_model_name)
-    
-    os.environ['OPENAI_API_KEY'] = config['api_key']
-    os.environ['OPENAI_BASE_URL'] = config['base_url']
-    
-    print(f"# Using model: {current_model_name} ({config['name']})")
-    print(f"# Timeout: {config['timeout']}s")
-    print(f"# Base URL: {config['base_url']}")
-    
-except Exception as e:
-    print(f"* ERROR: Failed to load configuration: {e}")
-    sys.exit(1)
-
-try:
-    from crewai import Agent, Task, Crew, LLM
-    print("+ CrewAI imports successful")
-except ImportError as e:
-    print(f"* ERROR: Failed to import CrewAI: {e}")
-    sys.exit(1)
-
-def test_crewai_with_lm_studio():
-    print("\n- Testing CrewAI with LM Studio...")
+def test_crewai_with_debugging():
+    """Test CrewAI with full error details"""
     
     try:
-        # Create LLM instance using configuration
-        llm = LLM(
-            model=config['name'],
-            base_url=config['base_url'],
-            api_key=config['api_key'],
-            timeout=config['timeout']
-        )
-        print("+ LLM instance created")
+        # Get model config
+        model_config = get_model_config()
         
-        # Create a simple agent
+        print(f"# Testing CrewAI with debugging...")
+        print(f"Model: {model_config['name']}")
+        print(f"Base URL: {model_config['base_url']}")
+        print(f"API Key: {model_config['api_key']}")
+        print()
+        
+        # Create LLM instance
+        print("Creating LLM instance...")
+        llm = LLM(
+            model=f"openai/{model_config['name']}",
+            api_key=model_config['api_key'],
+            base_url=model_config['base_url'],
+            timeout=60
+        )
+        print("LLM instance created")
+        
+        # Test LLM directly
+        print("Testing LLM directly...")
+        try:
+            result = llm.call("Hello, say 'LLM test successful'")
+            print(f"Direct LLM call successful: {result}")
+        except Exception as e:
+            print(f"Direct LLM call failed: {e}")
+            print(f"Error type: {type(e).__name__}")
+            traceback.print_exc()
+            return False
+        
+        # Create agent
+        print("Creating agent...")
         agent = Agent(
-            role='Test Agent',
-            goal='Answer simple questions',
-            backstory='You are a helpful test agent.',
+            role="Simple Agent",
+            goal="Answer questions briefly",
+            backstory="You are a helpful assistant.",
             llm=llm,
             verbose=True
         )
-        print("+ Agent created")
+        print("Agent created")
         
-        # Create a simple task
+        # Create task
+        print("Creating task...")
         task = Task(
-            description='Say hello and introduce yourself in one sentence.',
-            expected_output='A friendly greeting and introduction.',
+            description="Say hello and introduce yourself briefly.",
+            expected_output="A brief hello message.",
             agent=agent
         )
-        print("+ Task created")
+        print("Task created")
         
         # Create crew
+        print("Creating crew...")
         crew = Crew(
             agents=[agent],
             tasks=[task],
             verbose=True
         )
-        print("+ Crew created")
+        print("Crew created")
         
-        # Execute the crew
-        print("\n> Executing crew...")
+        # Execute
+        print("Executing crew...")
         result = crew.kickoff()
+        print("Crew execution successful!")
+        print(f"Result: {result}")
         
-        print(f"\n+ CrewAI execution successful!")
-        print(f"+ Result: {result}")
         return True
         
     except Exception as e:
-        print(f"* ERROR: CrewAI execution failed: {e}")
-        import traceback
+        print(f"CrewAI test failed: {e}")
+        print(f"Error type: {type(e).__name__}")
         traceback.print_exc()
         return False
 
 if __name__ == "__main__":
-    test_crewai_with_lm_studio()
+    test_crewai_with_debugging()

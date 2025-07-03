@@ -1,14 +1,18 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
-Test Crew        print("+ LLM instance created")
-        
-        # Test LLM directly
-        print("Testing LLM directly...")
-        try:
-            result = llm.call("Hello, say 'LLM test successful'")
-            print(f"+ Direct LLM call successful: {result}")
-        except Exception as e:
-            print(f"- Direct LLM call failed: {e}")ore detailed error reporting
+CrewAI Integration Test
+
+This test verifies that:
+1. CrewAI can be properly imported and initialized
+2. CrewAI can connect to LM Studio using the configured model
+3. A simple agent and task can be executed successfully
+4. Direct LLM calls work properly
+
+Usage:
+    python test_crewai_simple.py
+    
+The test uses the model configured in .env.toml under [settings.default_model].
+Ensure LM Studio is running with the configured model loaded before running this test.
 """
 import sys
 import os
