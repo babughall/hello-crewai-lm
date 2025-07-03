@@ -1,0 +1,16 @@
+research_task:
+  description: >
+    Write a brief summary about {topic} in 2-3 sentences.
+    Keep it simple and concise.
+  expected_output: >
+    A short paragraph (2-3 sentences) about {topic}
+  agent: researcher
+
+reporting_task:
+  description: >
+    Take the summary and expand it into a simple report with 3 main points.
+    Keep it concise and well-formatted.
+  expected_output: >
+    A simple report with 3 bullet points about the topic.
+    Formatted as markdown without '```'
+  agent: reporting_analyst

@@ -1,0 +1,17 @@
+# User-specific configuration
+.env.toml
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# UV lock file (auto-generated)
+uv.lock
+
+# CrewAI outputs
+report.md
+
+# IDE
+.vscode/
+.DS_Store
