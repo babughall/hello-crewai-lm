@@ -1,103 +1,74 @@
-# HelloCrewai with LM Studio
+# CrewAI with LM Studio Integration
 
-Welcome to the HelloCrewai project with LM Studio integration. This CrewAI project is configured to work with local LLMs via LM Studio, allowing you to run AI agents locally without requiring external API services.
+A CrewAI project configured to work seamlessly with LM Studio for local LLM inference. Features a simple CLI for switching between models and comprehensive tests for connectivity verification.
+
+## Key Features
+
+- **LM Studio Integration**: Direct connectivity to local LM Studio server
+- **Model Switching CLI**: Number-based interface for quick model changes
+- **Connectivity Tests**: Verify LM Studio connection and CrewAI integration
+- **Configuration Management**: Simple .env.toml for model settings
+
+## Quick Start
+
+1. **Setup LM Studio**: Ensure LM Studio is running on `localhost:1234` with models loaded
+2. **Install dependencies**: `uv sync`
+3. **Configure models**: `cp .env.toml.example .env.toml` and edit model names
+4. **Test connectivity**: `uv run python tests/test_lm_studio_simple.py`
+5. **Switch models**: `uv run python scripts/switch_model.py 1`
+6. **Run CrewAI**: `uv run hello_crewai`
+
+## Model Switching CLI
+
+The project includes a number-based CLI for easy model switching:
+
+```bash
+# List available models with numbers
+uv run python scripts/switch_model.py list
+
+# Switch to model by number (1, 2, etc.)
+uv run python scripts/switch_model.py 1
+uv run python scripts/switch_model.py 2
+```
+
+## Testing
+
+Verify your setup with the included tests:
+
+```bash
+# Test LM Studio connectivity
+uv run python tests/test_lm_studio_simple.py
+
+# Test CrewAI integration
+uv run python tests/test_crewai_simple.py
+```
 
 ## Project Structure
 
 ```
 hello_crewai/
-├── .env.toml                # Model configuration (main config file)
-├── src/hello_crewai/        # Main application code
-│   ├── config_loader.py     # Configuration utilities
-│   ├── crew.py             # Main CrewAI application
-│   └── main.py             # Entry point
-├── tests/                   # Test files
-│   ├── test_lm_studio_simple.py   # LM Studio connectivity test
-│   └── test_crewai_simple.py      # CrewAI integration test
-├── scripts/                 # CLI utilities and scripts
-│   └── switch_model.py      # Model switching utility
-└── pyproject.toml          # Python project configuration
+├── .env.toml.example        # Configuration template
+├── scripts/switch_model.py  # Model switching CLI
+├── tests/                   # LM Studio & CrewAI tests
+├── src/hello_crewai/        # Main application
+└── pyproject.toml          # Dependencies
 ```
-
-## Installation
-
-Ensure you have Python >=3.10 <3.14 installed on your system. This project uses [UV](https://docs.astral.sh/uv/) for dependency management.
-
-First, install uv if you haven't already:
-```bash
-pip install uv
-```
-
-Navigate to your project directory and install the dependencies:
-```bash
-uv sync
-```
-
-Copy the example configuration and customize it:
-```bash
-copy .env.toml.example .env.toml   # Windows
-# or
-cp .env.toml.example .env.toml     # macOS/Linux
-```
-
-Edit `.env.toml` to match your LM Studio model names and preferences.
-
-## Requirements
-
-Before running the project, ensure you have:
-
-- **LM Studio** running on `localhost:1234` with models loaded
-- **Python environment** with CrewAI and dependencies installed
-- **Models configured** in `.env.toml` that match those loaded in LM Studio
-
-## Usage
-
-### Running Tests
-
-Test LM Studio connectivity:
-```bash
-uv run python tests/test_lm_studio_simple.py
-```
-
-Test CrewAI integration:
-```bash
-uv run python tests/test_crewai_simple.py
-```
-
-### Model Management
-
-List available models:
-```bash
-uv run python scripts/switch_model.py list
-```
-
-Switch to a different model by number:
-```bash
-uv run python scripts/switch_model.py 1   # Switch to first model
-uv run python scripts/switch_model.py 2   # Switch to second model
-```
-
-### Running the Main Application
-
-```bash
-uv run hello_crewai
-```
-
-This will run the CrewAI crew using the currently configured model from `.env.toml`.
 
 ## Configuration
 
-The project uses `.env.toml` for configuration management:
+The project uses `.env.toml` for model configuration. Copy the example file and customize:
 
-- **Model Settings**: Configure which model to use by default
-- **LM Studio Settings**: Base URL and API key for LM Studio
-- **Model Definitions**: Define available models with their parameters
+```bash
+cp .env.toml.example .env.toml
+```
 
-Models can be easily switched using the CLI utility in `scripts/switch_model.py`.
+Configure your LM Studio models and preferences in `.env.toml`.
 
-## Understanding Your Crew
+## Requirements
 
-The hello_crewai Crew is composed of AI agents that work with your local LM Studio models. Each agent has unique roles, goals, and can collaborate on tasks while using your locally hosted language models.
+- Python >=3.10 <3.14
+- [UV](https://docs.astral.sh/uv/) package manager
+- LM Studio running on `localhost:1234`
 
 ## Support
 
