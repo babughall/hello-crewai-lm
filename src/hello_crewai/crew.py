@@ -41,7 +41,7 @@ class HelloCrewai():
         
         # Create LLM instance
         self.llm_config = LLM(
-            model=model_config['name'],
+            model=f"openai/{model_config['name']}",
             base_url=model_config['base_url'],
             api_key=model_config['api_key'],
             timeout=model_config['timeout']

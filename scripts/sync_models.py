@@ -52,6 +52,30 @@ def get_lm_studio_models():
         print(f"* ERROR: Failed to get models from LM Studio: {e}")
         return []
 
+def validate_model(model_id, base_url, api_key):
+    """Test if a model actually works for LLM calls"""
+    try:
+        # Simple test completion request
+        response = requests.post(
+            f"{base_url}/chat/completions",
+            headers={"Authorization": f"Bearer {api_key}"},
+            json={
+                "model": model_id,
+                "messages": [{"role": "user", "content": "Hello"}],
+                "max_tokens": 5,
+                "temperature": 0
+            },
+            timeout=15
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            return data.get("choices", [{}])[0].get("message", {}).get("content", "").strip() != ""
+        return False
+        
+    except Exception:
+        return False
+
 def list_lm_studio_models():
     """List all models available in LM Studio"""
     
@@ -99,14 +123,22 @@ def sync_models_to_config():
         model_name = model_config.get("name", "")
         if model_name in lm_model_ids:
             new_models[model_key] = model_config
-            print(f"✓ Kept existing model: {model_key} ({model_name})")
+            print(f"+ Kept existing model: {model_key} ({model_name})")
         else:
-            print(f"⚠ Removed model (not in LM Studio): {model_key} ({model_name})")
+            print(f"- Removed model (not in LM Studio): {model_key} ({model_name})")
     
-    # Add new models from LM Studio
+    # Add new models from LM Studio (with validation)
+    base_url = config.get("lm_studio", {}).get("base_url", "http://localhost:1234/v1")
+    api_key = config.get("lm_studio", {}).get("api_key", "lm-studio")
+    
     for lm_model in lm_models:
         model_id = lm_model["id"]
         clean_name = lm_model["clean_name"]
+        
+        # Skip embedding models
+        if "embedding" in model_id.lower():
+            print(f"- Skipped embedding model: {model_id}")
+            continue
         
         # Check if this model is already configured
         already_exists = any(
@@ -115,6 +147,14 @@ def sync_models_to_config():
         )
         
         if not already_exists:
+            # Test if model actually works
+            print(f"* Testing model: {model_id}...")
+            if not validate_model(model_id, base_url, api_key):
+                print(f"- Model failed validation: {model_id}")
+                continue
+            
+            print(f"+ Model validation passed: {model_id}")
+            
             # Generate a unique key
             model_key = clean_name.lower().replace("-", "_").replace(".", "_")
             counter = 1
@@ -126,9 +166,9 @@ def sync_models_to_config():
             new_models[model_key] = {
                 "name": model_id,
                 "timeout": 300,
-                "description": f"Auto-detected: {clean_name}"
+                "description": f"Validated: {clean_name}"
             }
-            print(f"+ Added new model: {model_key} ({model_id})")
+            print(f"+ Added validated model: {model_key} ({model_id})")
     
     # Update config
     config["models"] = new_models
@@ -150,7 +190,7 @@ def sync_models_to_config():
         toml.dump(config, f)
     
     print()
-    print(f"✓ Configuration updated with {len(new_models)} models")
+    print(f"+ Configuration updated with {len(new_models)} models")
 
 def print_help():
     """Print help information"""
