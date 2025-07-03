@@ -1,48 +1,29 @@
-# CrewAI with LM Studio Integration
+# CrewAI + LM Studio
 
-A clean CrewAI project that connects seamlessly with LM Studio for local LLM inference. Features automatic model detection and simple CLI switching.
-
-## Features
-
-- **Auto-detect models** from LM Studio
-- **Number-based CLI** for quick model switching  
-- **Connectivity tests** to verify your setup
-- **Git-friendly** configuration (personal configs stay local)
+CrewAI project that connects to LM Studio. Auto-detects your loaded models and provides CLI switching.
 
 ## Quick Start
 
-1. **Start LM Studio** on `localhost:1234` with models loaded
-2. **Install dependencies**: `uv sync`
-3. **Setup config**: `cp .env.toml.example .env.toml`
-4. **Sync models**: `uv run python scripts/sync_models.py sync`
-5. **Run CrewAI**: `uv run hello_crewai`
+1. Clone this repo: `git clone https://github.com/babughall/hello-crewai-lm.git`
+2. Install dependencies: `cd hello-crewai-lm && uv sync`
+3. Start LM Studio and download/load models you want to use
+4. Start LM Studio server on `localhost:1234`
+5. Setup config: `cp .env.toml.example .env.toml`
+6. Sync models: `uv run python scripts/sync_models.py sync`
+7. Run CrewAI: `uv run hello_crewai`
 
-## Usage
+## Commands
 
-### Switch Models
 ```bash
-# List available models
+# Switch models
 uv run python scripts/switch_model.py list
-
-# Switch to model by number
 uv run python scripts/switch_model.py 2
-```
 
-### Sync New Models
-```bash
-# Auto-detect from LM Studio
+# Sync new models  
 uv run python scripts/sync_models.py sync
 
-# Or manually edit .env.toml
-```
-
-### Test Setup
-```bash
-# Test LM Studio connection
+# Test connection
 uv run python tests/test_lm_studio_simple.py
-
-# Test CrewAI integration  
-uv run python tests/test_crewai_simple.py
 ```
 
 ## Configuration
